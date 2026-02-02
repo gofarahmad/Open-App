@@ -1,73 +1,94 @@
-
-import React, { useState, useCallback } from 'react';
-import { findPackageName } from '../services/geminiService.ts';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { findPackageName, getPopularPackages } from '../services/geminiService.ts';
 
 export const PackageLauncher: React.FC = () => {
   const [packageName, setPackageName] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [suggestions, setSuggestions] = useState<{ name: string; id: string; iconUrl?: string }[]>([]);
 
-  const handleLaunch = useCallback(() => {
-    if (!packageName.trim()) {
-      setError('Please enter a package name');
+  useEffect(() => {
+    getPopularPackages().then(setSuggestions);
+  }, []);
+
+  const selectedApp = useMemo(() => {
+    const trimmed = packageName.trim().toLowerCase();
+    if (!trimmed) return null;
+    return suggestions.find(s => s.id.toLowerCase() === trimmed);
+  }, [packageName, suggestions]);
+
+  const handleLaunch = useCallback((id?: string) => {
+    const target = id || packageName.trim();
+    if (!target) {
+      setError('Enter a package name');
       return;
     }
-
-    // Android Intent URI construction
-    const intentUrl = `intent://#Intent;package=${packageName.trim()};scheme=package;end`;
-    
-    // Attempt to open
+    // Attempt to launch via intent
+    const intentUrl = `intent://#Intent;package=${target};scheme=package;end`;
     window.location.assign(intentUrl);
     setError(null);
   }, [packageName]);
 
-  const handleSearchAssistant = async () => {
-    const prompt = window.prompt("What app are you looking for? (e.g. Instagram, Netflix)");
+  const handleAIQuery = async () => {
+    const prompt = window.prompt("What app are you looking for? (e.g., 'Netflix', 'Mobile Legends')");
     if (!prompt) return;
-
+    
     setIsSearching(true);
     setError(null);
     try {
       const result = await findPackageName(prompt);
       if (result === 'unknown') {
-        setError(`Could not find package for "${prompt}"`);
+        setError(`Could not identify package for "${prompt}"`);
       } else {
         setPackageName(result);
+        if (window.confirm(`Found: ${result}\nLaunch now?`)) {
+          handleLaunch(result);
+        }
       }
     } catch (err) {
-      setError('Failed to query assistant');
+      setError('AI service unavailable');
     } finally {
       setIsSearching(false);
     }
   };
 
   return (
-    <div className="w-full glass-card rounded-2xl p-8 md:p-10 shadow-2xl relative overflow-hidden group">
-      <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/20 blur-[60px] rounded-full pointer-events-none group-hover:bg-primary/30 transition-all duration-700"></div>
-
-      <div className="flex flex-col gap-6 relative z-10">
-        <div className="flex flex-col gap-2">
-          <div className="flex justify-between items-center pb-2">
-            <span className="text-slate-200 text-sm font-semibold uppercase tracking-wide">Package Name</span>
-            <button 
-              onClick={handleSearchAssistant}
-              className="text-primary text-xs font-medium cursor-pointer flex items-center gap-1 hover:underline disabled:opacity-50"
-              disabled={isSearching}
-            >
-              <span className="material-symbols-outlined text-sm">
-                {isSearching ? 'autorenew' : 'info'}
+    <div className="w-full glass-panel rounded-[2rem] p-6 md:p-10 shadow-2xl relative overflow-hidden group">
+      {/* Accent lighting */}
+      <div className="absolute -top-12 -left-12 size-40 bg-primary/10 blur-3xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      
+      <div className="relative z-10 flex flex-col gap-8">
+        {/* Header Section */}
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-center size-8 bg-primary/10 rounded-lg border border-primary/20">
+                <span className="material-symbols-outlined text-primary text-xl notranslate">terminal</span>
+              </div>
+              <span className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] font-mono">
+                App Identifier
               </span>
-              {isSearching ? 'Consulting Gemini...' : 'Where to find?'}
+            </div>
+            <button 
+              onClick={handleAIQuery}
+              disabled={isSearching}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[9px] font-black uppercase tracking-widest hover:bg-primary/20 transition-all disabled:opacity-50"
+            >
+              <span className={`material-symbols-outlined text-base notranslate ${isSearching ? 'animate-spin' : ''}`}>
+                {isSearching ? 'progress_activity' : 'psychology'}
+              </span>
+              <span>{isSearching ? 'Searching...' : 'AI Lookup'}</span>
             </button>
           </div>
-          
-          <div className="relative group/input">
-            <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-slate-400 group-focus-within/input:text-primary transition-colors">
-              <span className="material-symbols-outlined">package_2</span>
+
+          <div className="relative">
+            <div className="absolute inset-y-0 left-5 flex items-center pointer-events-none text-slate-500">
+              <span className="material-symbols-outlined text-2xl notranslate">settings_suggest</span>
             </div>
             <input 
-              className="w-full pl-12 pr-4 rounded-xl text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-slate-700 bg-slate-950/50 focus:border-primary h-16 placeholder:text-slate-600 text-lg font-medium transition-all"
-              placeholder="e.g., com.whatsapp"
+              type="text"
+              className="w-full h-16 md:h-20 bg-slate-950/60 border border-white/10 rounded-2xl pl-16 pr-16 text-xl font-bold text-white placeholder:text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/50 transition-all font-mono"
+              placeholder="com.android.settings"
               value={packageName}
               onChange={(e) => {
                 setPackageName(e.target.value);
@@ -75,29 +96,67 @@ export const PackageLauncher: React.FC = () => {
               }}
               onKeyDown={(e) => e.key === 'Enter' && handleLaunch()}
             />
+            {selectedApp && (
+              <div className="absolute inset-y-0 right-4 flex items-center">
+                <div className="size-10 md:size-12 rounded-xl bg-slate-900 border border-white/10 p-1 shadow-2xl overflow-hidden">
+                  <img src={selectedApp.iconUrl} alt={selectedApp.name} className="w-full h-full object-cover rounded-lg" />
+                </div>
+              </div>
+            )}
           </div>
-          {error && <p className="text-red-400 text-xs mt-1 font-medium">{error}</p>}
-        </div>
-
-        <div className="flex pt-2">
-          <button 
-            onClick={handleLaunch}
-            className="group relative flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl h-16 px-8 bg-primary text-[#0f172a] hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(33,196,93,0.3)] active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-3 text-lg font-bold tracking-tight">
-              <span className="material-symbols-outlined group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform">rocket</span>
-              <span>Open Application</span>
+          {error && (
+            <div className="px-2 flex items-center gap-2 text-red-400 text-[10px] font-black uppercase tracking-widest animate-pulse">
+              <span className="material-symbols-outlined text-sm notranslate">error</span>
+              {error}
             </div>
-          </button>
+          )}
         </div>
 
-        <div className="flex flex-col items-center gap-4 border-t border-slate-800 pt-6 mt-2 text-center">
-          <p className="text-slate-400 text-sm font-medium leading-relaxed max-w-sm">
-            Ensure the application is installed on your Android device. This PWA uses 
-            <code className="mx-1 px-1.5 py-0.5 rounded bg-slate-800 text-primary font-mono text-xs italic">intent://</code> 
-            schemes to trigger direct launches.
-          </p>
+        {/* Main Launch Button */}
+        <button 
+          onClick={() => handleLaunch()}
+          className="w-full h-16 md:h-20 bg-primary hover:bg-emerald-400 text-slate-950 rounded-2xl flex items-center justify-center gap-3 transition-all active:scale-95 shadow-xl shadow-primary/20"
+        >
+          <span className="material-symbols-outlined text-3xl font-bold notranslate">bolt</span>
+          <span className="text-xl font-black uppercase tracking-wide">Launch App</span>
+        </button>
+
+        {/* Shortcuts Section */}
+        <div className="pt-4 border-t border-white/5">
+          <p className="text-slate-500 text-[9px] font-black uppercase tracking-[0.3em] mb-6">Popular Shortcuts</p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {suggestions.map((app) => (
+              <button
+                key={app.id}
+                onClick={() => {
+                  setPackageName(app.id);
+                  handleLaunch(app.id);
+                }}
+                className={`group/btn flex items-center gap-3 p-3 rounded-2xl border transition-all ${
+                  packageName.toLowerCase() === app.id.toLowerCase()
+                  ? 'bg-primary/10 border-primary/40'
+                  : 'bg-white/5 border-white/5 hover:border-primary/30 hover:bg-white/10'
+                }`}
+              >
+                <div className="size-10 bg-slate-950 rounded-xl overflow-hidden border border-white/10 flex-shrink-0 group-hover/btn:scale-110 transition-transform">
+                  {app.iconUrl ? (
+                    <img src={app.iconUrl} alt={app.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="material-symbols-outlined text-primary text-xl flex h-full w-full items-center justify-center notranslate">android</span>
+                  )}
+                </div>
+                <div className="flex flex-col items-start overflow-hidden">
+                  <span className="text-xs font-black text-white truncate w-full text-left">{app.name}</span>
+                  <span className="text-[8px] font-mono text-slate-500 truncate w-full text-left opacity-60">{app.id}</span>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
+
+        <p className="text-center text-[9px] font-bold text-slate-600 uppercase tracking-widest mt-2">
+          Optimized for Chrome on Android &bull; Safe Deep Linking
+        </p>
       </div>
     </div>
   );

@@ -1,41 +1,36 @@
-
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DroidLaunch PWA - Android App Launcher</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>DroidLaunch | Pro Android Deep Linking</title>
     
+    <!-- PWA Meta Tags -->
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#0f172a">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="DroidLaunch">
     
+    <!-- Favicon -->
     <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/48/000000/android-os.png">
     <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/192/000000/android-os.png">
 
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@100..700,0..1&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-25..0&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             darkMode: "class",
             theme: {
                 extend: {
                     colors: {
-                        "primary": "#21c45d",
-                        "background-light": "#f6f8f7",
-                        "background-dark": "#0f172a",
+                        "primary": "#22c55e",
+                        "slate-background": "#020617",
                     },
                     fontFamily: {
-                        "display": ["Space Grotesk", "sans-serif"]
-                    },
-                    borderRadius: {
-                        "DEFAULT": "0.25rem",
-                        "lg": "0.5rem",
-                        "xl": "0.75rem",
-                        "full": "9999px"
+                        "sans": ["Space Grotesk", "sans-serif"],
+                        "mono": ["JetBrains Mono", "monospace"]
                     },
                 },
             },
@@ -43,45 +38,61 @@
     </script>
     <style>
         body {
-            font-family: 'Space Grotesk', sans-serif;
-            background-color: #0f172a;
+            background-color: #020617;
+            color: #f8fafc;
+            -webkit-tap-highlight-color: transparent;
+            margin: 0;
+            overflow-x: hidden;
         }
-        .glass-card {
-            background: rgba(30, 41, 59, 0.7);
+
+        /* Material Symbols - Extra Robust Implementation */
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined' !important;
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none !important;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            user-select: none;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .bg-pattern {
-            background-image: radial-gradient(circle at 2px 2px, rgba(33, 196, 93, 0.05) 1px, transparent 0);
-            background-size: 40px 40px;
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
         }
     </style>
-<script type="importmap">
+</head>
+<body class="font-sans antialiased">
+    <div id="root"></div>
+    <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react-dom": "https://esm.sh/react-dom@^19.2.4",
     "react-dom/client": "https://esm.sh/react-dom@^19.2.4/client",
-    "@google/genai": "https://esm.sh/@google/genai@^1.39.0"
+    "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/"
   }
 }
 </script>
-<script>
-  window.onerror = function(msg, url, lineNo, columnNo, error) {
-    console.error('Global Error: ' + msg + ' at ' + url + ':' + lineNo);
-    return false;
-  };
-</script>
-</head>
-<body class="bg-background-dark text-slate-100 selection:bg-primary/30 min-h-screen">
-    <div id="root">
-      <div class="flex items-center justify-center min-h-screen">
-        <div className="animate-pulse text-primary font-medium">Loading DroidLaunch...</div>
-      </div>
-    </div>
-    <!-- Explicitly load the module if auto-import fails -->
     <script type="module" src="./index.tsx"></script>
 </body>
 </html>

@@ -10,8 +10,6 @@ const getApiKey = () => {
   }
 };
 
-const API_KEY = getApiKey();
-
 export const getGeminiClient = () => {
   const key = getApiKey();
   if (!key) {
@@ -39,12 +37,12 @@ export async function findPackageName(appName: string): Promise<string> {
   }
 }
 
-export async function getPopularPackages(): Promise<{ name: string; id: string }[]> {
+export async function getPopularPackages(): Promise<{ name: string; id: string; iconUrl?: string }[]> {
   const ai = getGeminiClient();
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: 'List 5 very popular Android apps and their package IDs.',
+      contents: 'List 6 very popular Android apps (like WhatsApp, Instagram, YouTube, etc.), their package IDs, and a direct URL to a high-quality square icon for them (e.g., from a CDN or official site).',
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -53,7 +51,8 @@ export async function getPopularPackages(): Promise<{ name: string; id: string }
             type: Type.OBJECT,
             properties: {
               name: { type: Type.STRING },
-              id: { type: Type.STRING }
+              id: { type: Type.STRING },
+              iconUrl: { type: Type.STRING, description: "Direct URL to the app icon image" }
             },
             required: ["name", "id"]
           }
@@ -61,12 +60,16 @@ export async function getPopularPackages(): Promise<{ name: string; id: string }
       }
     });
 
-    return JSON.parse(response.text || "[]");
+    const parsed = JSON.parse(response.text || "[]");
+    return parsed;
   } catch (e) {
     return [
-      { name: "WhatsApp", id: "com.whatsapp" },
-      { name: "YouTube", id: "com.google.android.youtube" },
-      { name: "Instagram", id: "com.instagram.android" }
+      { name: "WhatsApp", id: "com.whatsapp", iconUrl: "https://img.icons8.com/color/96/000000/whatsapp--v1.png" },
+      { name: "YouTube", id: "com.google.android.youtube", iconUrl: "https://img.icons8.com/color/96/000000/youtube-play.png" },
+      { name: "Instagram", id: "com.instagram.android", iconUrl: "https://img.icons8.com/color/96/000000/instagram-new--v1.png" },
+      { name: "Netflix", id: "com.netflix.mediaclient", iconUrl: "https://img.icons8.com/color/96/000000/netflix.png" },
+      { name: "Spotify", id: "com.spotify.music", iconUrl: "https://img.icons8.com/color/96/000000/spotify--v1.png" },
+      { name: "TikTok", id: "com.zhiliaoapp.musically", iconUrl: "https://img.icons8.com/color/96/000000/tiktok.png" }
     ];
   }
 }

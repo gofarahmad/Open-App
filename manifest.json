@@ -3,10 +3,11 @@
   "name": "DroidLaunch PWA",
   "short_name": "DroidLaunch",
   "description": "Android application launcher dashboard with deep linking support.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "minimal-ui"],
   "background_color": "#0f172a",
-  "theme_color": "#21c45d",
+  "theme_color": "#0f172a",
   "icons": [
     {
       "src": "https://img.icons8.com/fluency/192/000000/android-os.png",
@@ -26,5 +27,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "orientation": "portrait"
 }

@@ -1,30 +1,28 @@
-
 import React from 'react';
 
 export const Navbar: React.FC = () => {
   return (
-    <header className="w-full border-b border-slate-800 bg-slate-900/50 backdrop-blur-md sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="size-8 bg-primary rounded-lg flex items-center justify-center text-[#0f172a]">
-            <span className="material-symbols-outlined text-xl font-bold">robot_2</span>
+    <header className="w-full h-16 md:h-20 border-b border-white/5 bg-slate-950/40 backdrop-blur-md sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto h-full px-6 flex items-center justify-between">
+        <div className="flex items-center gap-3 cursor-pointer group">
+          <div className="size-9 bg-primary rounded-xl flex items-center justify-center text-slate-950 shadow-lg shadow-primary/20 group-hover:scale-105 transition-all">
+            <span className="material-symbols-outlined font-bold text-xl">android</span>
           </div>
-          <h2 className="text-xl font-bold tracking-tight text-white">
-            DroidLaunch <span className="text-primary">PWA</span>
-          </h2>
+          <h1 className="text-xl font-black tracking-tighter uppercase">
+            Droid<span className="text-primary">Launch</span>
+          </h1>
         </div>
-        
-        <div className="flex items-center gap-4">
-          <nav className="hidden md:flex items-center gap-6 mr-6 text-sm font-medium text-slate-400">
-            <a className="hover:text-primary transition-colors cursor-pointer">Documentation</a>
-            <a className="hover:text-primary transition-colors cursor-pointer">Support</a>
-          </nav>
-          
-          <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-slate-800 text-slate-300 hover:text-primary transition-all border border-slate-700">
-            <span className="material-symbols-outlined">terminal</span>
+
+        <div className="flex items-center gap-2">
+          <button className="hidden sm:flex items-center gap-2 px-4 py-2 text-xs font-bold uppercase tracking-widest text-slate-400 hover:text-primary transition-colors">
+            Documentation
           </button>
-          <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-white text-slate-900 hover:opacity-90 transition-all">
-            <span className="material-symbols-outlined">code</span>
+          <div className="h-6 w-px bg-white/10 mx-2 hidden sm:block"></div>
+          <button className="p-2 text-slate-400 hover:text-white transition-colors">
+            <span className="material-symbols-outlined">info</span>
+          </button>
+          <button className="size-10 bg-white/5 border border-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/10 transition-colors">
+            <span className="material-symbols-outlined">install_mobile</span>
           </button>
         </div>
       </div>
