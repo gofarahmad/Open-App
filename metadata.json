@@ -1,0 +1,5 @@
+{
+  "name": "DroidLaunch PWA",
+  "description": "A sleek, high-performance Android application launcher dashboard that utilizes deep linking intents to trigger app launches directly from the browser.",
+  "requestFramePermissions": []
+}
