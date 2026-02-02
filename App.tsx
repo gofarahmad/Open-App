@@ -1,10 +1,10 @@
 
 import React from 'react';
-import { Navbar } from './components/Navbar';
-import { Hero } from './components/Hero';
-import { PackageLauncher } from './components/PackageLauncher';
-import { Stats } from './components/Stats';
-import { Footer } from './components/Footer';
+import { Navbar } from './components/Navbar.tsx';
+import { Hero } from './components/Hero.tsx';
+import { PackageLauncher } from './components/PackageLauncher.tsx';
+import { Stats } from './components/Stats.tsx';
+import { Footer } from './components/Footer.tsx';
 
 const App: React.FC = () => {
   return (

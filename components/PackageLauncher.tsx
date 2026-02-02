@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { findPackageName } from '../services/geminiService';
+import { findPackageName } from '../services/geminiService.ts';
 
 export const PackageLauncher: React.FC = () => {
   const [packageName, setPackageName] = useState('');
@@ -14,7 +14,6 @@ export const PackageLauncher: React.FC = () => {
     }
 
     // Android Intent URI construction
-    // Standard format for launching apps by package ID
     const intentUrl = `intent://#Intent;package=${packageName.trim()};scheme=package;end`;
     
     // Attempt to open
@@ -44,7 +43,6 @@ export const PackageLauncher: React.FC = () => {
 
   return (
     <div className="w-full glass-card rounded-2xl p-8 md:p-10 shadow-2xl relative overflow-hidden group">
-      {/* Glow Effect */}
       <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary/20 blur-[60px] rounded-full pointer-events-none group-hover:bg-primary/30 transition-all duration-700"></div>
 
       <div className="flex flex-col gap-6 relative z-10">
@@ -99,16 +97,6 @@ export const PackageLauncher: React.FC = () => {
             <code className="mx-1 px-1.5 py-0.5 rounded bg-slate-800 text-primary font-mono text-xs italic">intent://</code> 
             schemes to trigger direct launches.
           </p>
-          <div className="flex gap-4">
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-widest">
-              <span className="material-symbols-outlined text-sm">verified_user</span>
-              Secure
-            </div>
-            <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase tracking-widest">
-              <span className="material-symbols-outlined text-sm">bolt</span>
-              No Latency
-            </div>
-          </div>
         </div>
       </div>
     </div>

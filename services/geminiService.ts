@@ -1,51 +1,66 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-const API_KEY = process.env.API_KEY || "";
+// Safely access process.env to prevent ReferenceError in browser environments
+const getApiKey = () => {
+  try {
+    return (typeof process !== 'undefined' && process.env) ? process.env.API_KEY || "" : "";
+  } catch (e) {
+    return "";
+  }
+};
+
+const API_KEY = getApiKey();
 
 export const getGeminiClient = () => {
-  if (!API_KEY) {
-    console.error("API_KEY is missing in process.env");
+  const key = getApiKey();
+  if (!key) {
+    console.warn("API_KEY is missing. AI features will not work.");
   }
-  return new GoogleGenAI({ apiKey: API_KEY });
+  return new GoogleGenAI({ apiKey: key });
 };
 
 export async function findPackageName(appName: string): Promise<string> {
   const ai = getGeminiClient();
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: `Identify the Android package name (application ID) for: "${appName}". Return ONLY the package name (e.g., com.google.android.youtube). If you don't know, return "unknown".`,
-    config: {
-      temperature: 0.1,
-      maxOutputTokens: 50,
-    }
-  });
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: `Identify the Android package name (application ID) for: "${appName}". Return ONLY the package name (e.g., com.google.android.youtube). If you don't know, return "unknown".`,
+      config: {
+        temperature: 0.1,
+        maxOutputTokens: 50,
+      }
+    });
 
-  return response.text?.trim() || "unknown";
+    return response.text?.trim() || "unknown";
+  } catch (err) {
+    console.error("Gemini API error:", err);
+    return "unknown";
+  }
 }
 
 export async function getPopularPackages(): Promise<{ name: string; id: string }[]> {
   const ai = getGeminiClient();
-  const response = await ai.models.generateContent({
-    model: 'gemini-3-flash-preview',
-    contents: 'List 5 very popular Android apps and their package IDs.',
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.ARRAY,
-        items: {
-          type: Type.OBJECT,
-          properties: {
-            name: { type: Type.STRING },
-            id: { type: Type.STRING }
-          },
-          required: ["name", "id"]
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: 'List 5 very popular Android apps and their package IDs.',
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: Type.ARRAY,
+          items: {
+            type: Type.OBJECT,
+            properties: {
+              name: { type: Type.STRING },
+              id: { type: Type.STRING }
+            },
+            required: ["name", "id"]
+          }
         }
       }
-    }
-  });
+    });
 
-  try {
     return JSON.parse(response.text || "[]");
   } catch (e) {
     return [

@@ -1,12 +1,11 @@
 
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import App from './App.tsx';
 
 // Register Service Worker for PWA using relative path
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    // Using ./sw.js instead of /sw.js for better deployment compatibility
     navigator.serviceWorker.register('./sw.js').then((registration) => {
       console.log('SW registered: ', registration);
     }).catch((registrationError) => {
